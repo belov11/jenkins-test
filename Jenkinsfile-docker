@@ -34,5 +34,6 @@ pipeline {
                 docker push pavelbelov/nginx:latest
                 '''
             }
+        }
     }
 }
