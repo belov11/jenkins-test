@@ -1,34 +1,25 @@
-pipeline {
-    agent any 
-    environment {
-    DOCKERHUB_CREDENTIALS = credentials('pavelbelov')
-    }
-    stages { 
-        stage('SCM Checkout') {
-            steps{
-            git 'https://github.com/belov11/jenkins-test.git'
-            }
-        }
+#!groovy
+// Check ub1 properties
+properties([disableConcurrentBuilds()])
 
-        stage('Build docker image') {
-            steps {  
-                sh 'docker build -t pavelbelov/nodeapp:$BUILD_NUMBER .'
+pipeline {
+    agent { 
+        label 'master'
+        }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    stages {
+        stage("First step") {
+            steps {
+                sh 'ssh root@ub1 \'hostname\''
             }
         }
-        stage('login to dockerhub') {
-            steps{
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        stage("Second step") {
+            steps {
+                sh 'ssh root@ub1 \'uptime\''
             }
-        }
-        stage('push image') {
-            steps{
-                sh 'docker push pavelbelov/nodeapp:$BUILD_NUMBER'
-            }
-        }
-}
-post {
-        always {
-            sh 'docker logout'
         }
     }
 }
